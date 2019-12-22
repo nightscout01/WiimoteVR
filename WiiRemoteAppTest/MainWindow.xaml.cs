@@ -25,6 +25,8 @@ namespace WiiRemoteAppTest
         public MainWindow()
         {
             ModelImporter modelImporter = new ModelImporter();
+            ModelVisual3D modelVisual = new ModelVisual3D();
+            Model3DGroup models = new Model3DGroup();
             InitializeComponent();
             Viewport3D viewport3D1 = new Viewport3D();  // screw XAML 
             // looks like the 3D coord system makes actual sense instead of WPFs usual wierdness with 0,0 being at the top left
@@ -41,16 +43,13 @@ namespace WiiRemoteAppTest
             viewport3D1.Camera = camera;
 
             // in typical WPF fashion, this is an absolute mess
-            ModelVisual3D modelVisual = new ModelVisual3D();
-            GeometryModel3D geometryModel3D = new GeometryModel3D();  // create a model
-            MeshGeometry3D cube = new MeshGeometry3D();
-            Model3DGroup models = new Model3DGroup();
             AmbientLight light = new AmbientLight(Color.FromRgb(255, 255, 255));
             models.Children.Add(light);
             mainGrid.Children.Add(viewport3D1);
             Model3DGroup group = modelImporter.Load("C:\\Users\\night\\source\\repos\\WiiRemoteAppTest\\WiiRemoteAppTest\\cube.obj");
             group.Children.Add(light);
             modelVisual.Content = group;
+            viewport3D1.Children.Add(modelVisual);
         }
     }
 }
