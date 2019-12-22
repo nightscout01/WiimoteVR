@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WiimoteLib;
 
 namespace WiiRemoteAppTest
 {
@@ -22,10 +24,13 @@ namespace WiiRemoteAppTest
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly ModelImporter modelImporter;
+        private readonly ModelVisual3D modelVisual;
         public MainWindow()
         {
-            ModelImporter modelImporter = new ModelImporter();
-            ModelVisual3D modelVisual = new ModelVisual3D();
+            Wiimote wm = new Wiimote();
+            modelImporter = new ModelImporter();
+            modelVisual = new ModelVisual3D();
             Model3DGroup models = new Model3DGroup();
             InitializeComponent();
             Viewport3D viewport3D1 = new Viewport3D();  // screw XAML 
@@ -34,7 +39,7 @@ namespace WiiRemoteAppTest
             camera.Position = new Point3D(0, 0, 2);
 
             // Specify the direction that the camera is pointing.
-            camera.LookDirection = new Vector3D(0, 0, -1);
+            camera.LookDirection = new Vector3D(0, 0, -2);
 
             // Define camera's horizontal field of view in degrees.
             camera.FieldOfView = 60;
@@ -50,6 +55,17 @@ namespace WiiRemoteAppTest
             group.Children.Add(light);
             modelVisual.Content = group;
             viewport3D1.Children.Add(modelVisual);
+        }
+
+        public void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+           
+        }
+
+        private void RotationButton_Click(object sender, RoutedEventArgs e)
+        {
+            camera.Position = new Point3D(0, 0, 2);
+            modelVisual.Transform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(1, 2, 1), ));
         }
     }
 }
