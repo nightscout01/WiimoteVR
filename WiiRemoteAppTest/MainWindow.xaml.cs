@@ -45,37 +45,6 @@ namespace WiiRemoteAppTest
             GeometryModel3D geometryModel3D = new GeometryModel3D();  // create a model
             MeshGeometry3D cube = new MeshGeometry3D();
             Model3DGroup models = new Model3DGroup();
-            models.Children.Add(geometryModel3D);
-         //   modelVisual.Content = models;
-           // viewport3D1.Children.Add(modelVisual);
-            cube.Positions = new Point3DCollection
-            {
-                new Point3D(-1, -1, 0),
-                new Point3D(1,-1,1),
-                new Point3D(-1,1,0),
-                new Point3D(1,1,0),
-            };
-            cube.Normals = new Vector3DCollection
-            {
-                new Vector3D(0,0,1),
-                new Vector3D(0,0,1),
-                new Vector3D(0,0,1),
-                new Vector3D(0,0,1)
-            };
-            cube.TextureCoordinates = new PointCollection
-            {
-                new Point(0,1),
-                new Point(1,1),
-                new Point(0,0),
-                new Point(1,0)
-            };
-            cube.TriangleIndices = new Int32Collection
-            {
-                0,1,2,1,2,4
-            };
-            geometryModel3D.Geometry = cube;
-            geometryModel3D.Material = new DiffuseMaterial(new SolidColorBrush(Color.FromRgb(0, 0, 255)));
-            viewport3D1.Children.Add(modelVisual);
             AmbientLight light = new AmbientLight(Color.FromRgb(255, 255, 255));
             models.Children.Add(light);
             mainGrid.Children.Add(viewport3D1);
