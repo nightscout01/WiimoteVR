@@ -26,6 +26,7 @@ namespace WiiRemoteAppTest
     {
         private readonly ModelImporter modelImporter;
         private readonly ModelVisual3D modelVisual;
+        private readonly PerspectiveCamera camera;
         public MainWindow()
         {
             Wiimote wm = new Wiimote();
@@ -35,7 +36,7 @@ namespace WiiRemoteAppTest
             InitializeComponent();
             Viewport3D viewport3D1 = new Viewport3D();  // screw XAML 
             // looks like the 3D coord system makes actual sense instead of WPFs usual wierdness with 0,0 being at the top left
-            PerspectiveCamera camera = new PerspectiveCamera();
+            camera = new PerspectiveCamera();
             camera.Position = new Point3D(0, 0, 2);
 
             // Specify the direction that the camera is pointing.
