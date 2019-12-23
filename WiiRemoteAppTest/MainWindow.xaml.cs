@@ -125,7 +125,7 @@ namespace WiiRemoteAppTest
                 Point3D newHeadPos = new Point3D(headX, headY, -headDist);
                 Vector3D cameraLookDir = camera.LookDirection;
                 cameraLookDir.Normalize();
-                Point3D lookDirection = camera.Position + (cameraLookDir * -newHeadPos.Z);
+                Point3D lookDirection = newHeadPos;//(Point3D) (cameraLookDir * -newHeadPos.Z);
                 camera.Position += (newHeadPos - lastPosition);
                 //Console.WriteLine((newHeadPos - lastPosition));
               //  camera.LookAt(lookDirection, 0);
@@ -281,13 +281,14 @@ namespace WiiRemoteAppTest
 
                 System.Windows.Point p = new System.Windows.Point();
                 // should calculate based on distance
-                Application.Current.Dispatcher.Invoke(() => {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
                     p = Mouse.GetPosition(Application.Current.MainWindow);
                     Console.WriteLine(p.X);
                 });
-               
-                avgX = (float) p.X;
-                avgY = (float) p.Y;
+
+                avgX = (float)p.X;
+                avgY = (float)p.Y;
                 headX = (float)(movementScaling * Math.Sin(radiansPerPixel * (avgX - 512)) * headDist);
 
                 relativeVerticalAngle = (avgY - 384) * radiansPerPixel;  // relative angle to camera axis
