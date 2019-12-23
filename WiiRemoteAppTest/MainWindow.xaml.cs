@@ -95,9 +95,40 @@ namespace WiiRemoteAppTest
               */
 
 
-            Vector3D temp = (cameraTarget - cameraPosition);
-            temp.Normalize();  // norma
-            Vector3D zAxis = temp;
+            Vector3D zAxis = (cameraTarget - cameraPosition);
+            zAxis.Normalize();  // normalize the Z-Axis vector
+
+            Vector3D xAxis = Vector3D.CrossProduct(cameraUpVector, zAxis);
+            xAxis.Normalize();  // normalize the X-Axis vector
+
+            Vector3D yAxis = Vector3D.CrossProduct(zAxis, xAxis);
+
+            // public Matrix3D (double m11, double m12, double m13, double m14, double m21, double m22, double m23, double m24, double m31, 
+            // double m32, double m33, double m34, double offsetX, double offsetY, double offsetZ, double m44);
+
+            // first we need to create our viewMatrix, in the same way Johhny did it , so therefore, we have to do it the same way as 
+            // Direct3D
+
+            Matrix3D viewMatrix = new Matrix3D(
+                xAxis.X, yAxis.X, zAxis.X, 0,
+                xAxis.Y, yAxis.Y, zAxis.Y, 0,
+                xAxis.Z, yAxis.Z, zAxis.Z, 0,
+                -Vector3D.DotProduct(xAxis, cameraPosition), -Vector3D.DotProduct(yAxis, cameraPosition),  // this down here is 1 row
+                    -Vector3D.DotProduct(zAxis, cameraPosition), 1);  // what a nightmare
+
+
+            // now we need to create our projection matrix
+            // it is also a Matrix3D struct, formatted like below
+            float nearPlane = 0.5f;
+            float screenAspect = 16 / 9;  // oh boy using float values in 2019 
+            float left = nearPlane * (-.5f * screenAspect + headX) / headDist;
+
+            /*
+             2*znearPlane/(right-left)  0                           0                                            0
+             0                          2*znearPlane/(top-bottom)   0                                            0
+             (left+right)/(left-right)  (top+bottom)/(bottom-top)   zfarPlane/(zfarPlane-znearPlane)             1
+             0                          0                           znearPlane*zfarPlane/(znearPlane-zfarPlane)  0 
+             */
 
             // in typical WPF fashion, this is an absolute mess
             light = new AmbientLight(Color.FromRgb(255, 255, 255));
