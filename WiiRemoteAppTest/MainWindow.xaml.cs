@@ -26,7 +26,7 @@ namespace WiiRemoteAppTest
     {
         private readonly ModelImporter modelImporter;
         private readonly ModelVisual3D modelVisual;
-        private readonly PerspectiveCamera camera;
+        private readonly MatrixCamera camera;
         AmbientLight light;
 
         // can be used to find the absolute rotation of an object around the 3 cardinal axes
@@ -55,7 +55,6 @@ namespace WiiRemoteAppTest
             wm.SetReportType(InputReport.IRAccel, true);  // report back only IR and Accelerometer data, and report it continiously.
             wm.SetLEDs(1);
 
-
             modelImporter = new ModelImporter();  // initialize some fields, and the model3D group
             modelVisual = new ModelVisual3D();
             Model3DGroup models = new Model3DGroup();
@@ -63,22 +62,46 @@ namespace WiiRemoteAppTest
 
             InitializeComponent();
             Viewport3D viewport3D1 = new Viewport3D();  // screw XAML 
-            // looks like the 3D coord system makes actual sense instead of WPFs usual wierdness with 0,0 being at the top left
-            camera = new PerspectiveCamera();
-            camera.Position = new Point3D(0, 0, 3);
+                                                        // looks like the 3D coord system makes actual sense instead of WPFs usual wierdness with 0,0 being at the top left
+            camera = new MatrixCamera();
+            // camera.ViewMatrix
 
-            // Specify the direction that the camera is pointing.
-            camera.LookDirection = new Vector3D(0, 0, -1);
+            // We use a 4x4 matrix for these so we can do both transformation (scaling,rotation,etc..) and translation
+            // I think I get it???
+            // We gotta hope that this is basically the same idea from direct3D or else I'm gonna have to figure out some m a t h
+            //Matrix3D vmatrix = new Matrix3D(
+            //    headX,headY,headDist,0,  // row 1
+            //    headX,headY,0,0,  // row 2
+            //    1,0,0,0,  // row 3
+            //    0,0,0,0);  // row 4 is just offsets (I hope)
+            // nope it's math time
 
-            // Define camera's horizontal field of view in degrees.
-            camera.FieldOfView = 60;
+            Vector3D cameraPosition = new Vector3D(headX, headY, headDist);
+            Vector3D cameraTarget = new Vector3D(headX, headY, 0);
+            Vector3D cameraUpVector = new Vector3D(0, 1, 0);
 
-            // Asign the camera to the viewport
-            viewport3D1.Camera = camera;
+            // if we're trying to recreate the D3D version of this, we build the viewmatrix as so:
+            // apologies for the gross formatting, I'll either fix or remove this if I get around to it
+            /*
+             * 
+                zaxis = normal(cameraTarget - cameraPosition)
+                xaxis = normal(cross(cameraUpVector, zaxis))
+                yaxis = cross(zaxis, xaxis)
+
+                 xaxis.x           yaxis.x           zaxis.x          0
+                 xaxis.y           yaxis.y           zaxis.y          0
+                 xaxis.z           yaxis.z           zaxis.z          0
+                -dot(xaxis, cameraPosition)  -dot(yaxis, cameraPosition)  -dot(zaxis, cameraPosition)  1
+              */
+
+
+            Vector3D temp = (cameraTarget - cameraPosition);
+            temp.Normalize();  // norma
+            Vector3D zAxis = temp;
 
             // in typical WPF fashion, this is an absolute mess
             light = new AmbientLight(Color.FromRgb(255, 255, 255));
-           // models.Children.Add(light);
+            // models.Children.Add(light);
             mainGrid.Children.Add(viewport3D1);
             Model3DGroup group = modelImporter.Load("C:\\Users\\night\\source\\repos\\WiiRemoteAppTest\\WiiRemoteAppTest\\cube.obj");
             group.Children.Add(light);
@@ -86,16 +109,69 @@ namespace WiiRemoteAppTest
             modelVisual.Content = group;
             viewport3D1.Children.Add(modelVisual);
         }
+        // public MainWindow()
+        // {
+        //    
+
+
+        //     modelImporter = new ModelImporter();  // initialize some fields, and the model3D group
+        //     modelVisual = new ModelVisual3D();
+        //     Model3DGroup models = new Model3DGroup();
+
+
+        //     InitializeComponent();
+        //     Viewport3D viewport3D1 = new Viewport3D();  // screw XAML 
+        //     // looks like the 3D coord system makes actual sense instead of WPFs usual wierdness with 0,0 being at the top left
+        //     camera = new MatrixCamera();
+        //     // camera.ViewMatrix
+
+        //     // We use a 4x4 matrix for these so we can do both transformation (scaling,rotation,etc..) and translation
+        //     // I think I get it???
+        //     // We gotta hope that this is basically the same idea from direct3D or else I'm gonna have to figure out some m a t h
+        //     //Matrix3D vmatrix = new Matrix3D(
+        //     //    headX,headY,headDist,0,  // row 1
+        //     //    headX,headY,0,0,  // row 2
+        //     //    1,0,0,0,  // row 3
+        //     //    0,0,0,0);  // row 4 is just offsets (I hope)
+        //     // nope it's math time
+
+        //     Vector3D cameraPosition = new Vector3D(headX, headY, headDist);
+        //     Vector3D cameraTarget = new Vector3D(headX, headY, 0);
+        //     Vector3D cameraUpVector = new Vector3D(0, 1, 0);
+
+        //     float nearPlane = .05f;
+        //     Matrix3D pmatrix = new Matrix3D();
+        //   //  camera.Position = new Point3D(0, 0, 3);
+
+        //     // Specify the direction that the camera is pointing.
+        //.//     camera.LookDirection = new Vector3D(0, 0, -1);
+
+        //     // Define camera's horizontal field of view in degrees.
+        // //    camera.FieldOfView = 60;
+
+        //     // Asign the camera to the viewport
+        //     viewport3D1.Camera = camera;
+
+        //     // in typical WPF fashion, this is an absolute mess
+        //     light = new AmbientLight(Color.FromRgb(255, 255, 255));
+        //    // models.Children.Add(light);
+        //     mainGrid.Children.Add(viewport3D1);
+        //     Model3DGroup group = modelImporter.Load("C:\\Users\\night\\source\\repos\\WiiRemoteAppTest\\WiiRemoteAppTest\\cube.obj");
+        //     group.Children.Add(light);
+        //     group.Transform = new TranslateTransform3D(-0.5, 0, 0);
+        //     modelVisual.Content = group;
+        //     viewport3D1.Children.Add(modelVisual);
+        // }
 
         public void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void RotationButton_Click(object sender, RoutedEventArgs e)
         {
-            camera.Position = new Point3D(0, 0, 2);
-            
+            //camera.Position = new Point3D(0, 0, 2);
+
         }
 
         private void Wiimote_Update(object sender, WiimoteChangedEventArgs args)
@@ -108,21 +184,22 @@ namespace WiiRemoteAppTest
             //    });
             //}
             ParseWiimoteData(args.WiimoteState);
-            if(Application.Current == null)  // just to eliminate exceptions when closing the program
+            if (Application.Current == null)  // just to eliminate exceptions when closing the program
             {
                 return;
             }
-            Application.Current.Dispatcher.Invoke(() => {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
                 //Transform3DGroup transformGroup = new Transform3DGroup();
                 //RotateTransform3D XRotateTransform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(1, 0, 0), 360 * headX));
                 //RotateTransform3D YRotateTransform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 1, 0), 360 * headY));
 
                 //transformGroup.Children.Add(XRotateTransform);
                 //transformGroup.Children.Add(YRotateTransform);
-               // modelVisual.Transform = transformGroup;
-                camera.Position = new Point3D(headX, headY, headDist);
+                // modelVisual.Transform = transformGroup;
+                //  camera.Position = new Point3D(headX, headY, headDist);
             });
-            
+
         }
 
         public void ParseWiimoteData(WiimoteState wiimoteState)
