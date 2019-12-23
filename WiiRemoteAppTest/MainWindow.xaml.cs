@@ -113,12 +113,12 @@ namespace WiiRemoteAppTest
                 return;
             }
             Application.Current.Dispatcher.Invoke(() => {
-                Transform3DGroup transformGroup = new Transform3DGroup();
-                RotateTransform3D XRotateTransform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(1, 0, 0), 360 * headX));
-                RotateTransform3D YRotateTransform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 1, 0), 360 * headY));
+                //Transform3DGroup transformGroup = new Transform3DGroup();
+                //RotateTransform3D XRotateTransform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(1, 0, 0), 360 * headX));
+                //RotateTransform3D YRotateTransform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 1, 0), 360 * headY));
 
-                transformGroup.Children.Add(XRotateTransform);
-                transformGroup.Children.Add(YRotateTransform);
+                //transformGroup.Children.Add(XRotateTransform);
+                //transformGroup.Children.Add(YRotateTransform);
                // modelVisual.Transform = transformGroup;
                 camera.Position = new Point3D(headX, headY, headDist);
             });
