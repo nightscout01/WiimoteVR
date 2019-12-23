@@ -63,7 +63,7 @@ namespace WiiRemoteAppTest
             InitializeComponent();
             Viewport3D viewport3D1 = new Viewport3D();  // screw XAML 
                                                         // looks like the 3D coord system makes actual sense instead of WPFs usual wierdness with 0,0 being at the top left
-            camera = new MatrixCamera();
+            
             // camera.ViewMatrix
 
             // We use a 4x4 matrix for these so we can do both transformation (scaling,rotation,etc..) and translation
@@ -120,15 +120,33 @@ namespace WiiRemoteAppTest
             // now we need to create our projection matrix
             // it is also a Matrix3D struct, formatted like below
             float nearPlane = 0.5f;
-            float screenAspect = 16 / 9;  // oh boy using float values in 2019 
+            float screenAspect = 16 / 9;  // oh boy using float values in 2019 (gotta make sure that this aspect ratio shite works in WPF)
+            // the original application used floats, so that's what we'll use here
             float left = nearPlane * (-.5f * screenAspect + headX) / headDist;
-
+            float right = nearPlane * (.5f * screenAspect + headX) / headDist;
+            float bottom = nearPlane * (-.5f - headY) / headDist;
+            float top = nearPlane * (.5f - headY) / headDist;
+            float znearPlane = nearPlane;  // yes yes i know  
+            float zfarPlane = 100;
             /*
              2*znearPlane/(right-left)  0                           0                                            0
              0                          2*znearPlane/(top-bottom)   0                                            0
              (left+right)/(left-right)  (top+bottom)/(bottom-top)   zfarPlane/(zfarPlane-znearPlane)             1
              0                          0                           znearPlane*zfarPlane/(znearPlane-zfarPlane)  0 
              */
+
+            Matrix3D projectionMatrix = new Matrix3D(
+                2 * znearPlane / (right - left),0,0,0,
+                0, 2 * znearPlane / (top - bottom),0,0,
+                (left + right) / (left - right), (top + bottom) / (bottom - top), zfarPlane / (zfarPlane - znearPlane), 1,
+                0,0, znearPlane * zfarPlane / (znearPlane - zfarPlane),0
+                );
+
+            camera = new MatrixCamera(viewMatrix,projectionMatrix);  // create a new camera with the given transformation matrices
+
+            // Asign the camera to the viewport
+            viewport3D1.Camera = camera;
+            
 
             // in typical WPF fashion, this is an absolute mess
             light = new AmbientLight(Color.FromRgb(255, 255, 255));
