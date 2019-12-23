@@ -41,9 +41,9 @@ namespace WiiRemoteAppTest
 
         private float headX = 0;
         private float headY = 0;
-        private float headDist = 2;
+        private float headDist = 0;
         private bool cameraIsAboveScreen = false;  // has no affect until zeroing and then is set automatically.
-        private float screenHeightinMM = 381;//20 * 25.4f;
+        private float screenHeightinMM = 350;//20 * 25.4f;
         private float cameraVerticaleAngle = 0;  // begins assuming the camera is point straight forward
         private float relativeVerticalAngle = 0;  // current head position view angle
         private Point3D lastPosition = new Point3D();
@@ -81,11 +81,22 @@ namespace WiiRemoteAppTest
          //   group.Transform = new TranslateTransform3D(-0.5, 0, 0);
             modelVisual.Content = group;
             viewport3D1.Children.Add(modelVisual);
+            //viewport3D1.
         }
 
         public void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            WindowState = WindowState.Maximized;
+            WindowStyle = WindowStyle.None;
+            this.KeyDown += new KeyEventHandler(MainWindow_KeyDown);
+        }
 
+        private void MainWindow_KeyDown(object sender, KeyEventArgs args)
+        {
+            if(args.Key == Key.Space)
+            {
+                headDist = 2;
+            }
         }
 
         private void RotationButton_Click(object sender, RoutedEventArgs e)
@@ -104,18 +115,21 @@ namespace WiiRemoteAppTest
             //    });
             //}
             ParseWiimoteData(args.WiimoteState);
+           
             if(Application.Current == null)
             {
                 return;
             }
             Application.Current.Dispatcher.Invoke(() => {
+                HeadPositionTextBox.Text = "HeadX = " + headX + " HeadY = " + headY + " HeadDist = " + headDist;
                 Point3D newHeadPos = new Point3D(headX, headY, -headDist);
                 Vector3D cameraLookDir = camera.LookDirection;
                 cameraLookDir.Normalize();
                 Point3D lookDirection = camera.Position + (cameraLookDir * -newHeadPos.Z);
                 camera.Position += (newHeadPos - lastPosition);
-                camera.LookAt(lookDirection, 0);
-
+                //Console.WriteLine((newHeadPos - lastPosition));
+              //  camera.LookAt(lookDirection, 0);
+                CameraPosTexrbox.Text = camera.Position.ToString();
                 lastPosition = newHeadPos;
                 camera.FieldOfView = 107 - 0.1944 * headDist * screenHeightinMM / 10;
             });
@@ -265,12 +279,18 @@ namespace WiiRemoteAppTest
                 float avgX = (firstPoint.X + secondPoint.X) / 2.0f;
                 float avgY = (firstPoint.Y + secondPoint.Y) / 2.0f;
 
-
+                System.Windows.Point p = new System.Windows.Point();
                 // should calculate based on distance
-
+                Application.Current.Dispatcher.Invoke(() => {
+                    p = Mouse.GetPosition(Application.Current.MainWindow);
+                    Console.WriteLine(p.X);
+                });
+               
+                avgX = (float) p.X;
+                avgY = (float) p.Y;
                 headX = (float)(movementScaling * Math.Sin(radiansPerPixel * (avgX - 512)) * headDist);
 
-                relativeVerticalAngle = (avgY - 384) * radiansPerPixel;//relative angle to camera axis
+                relativeVerticalAngle = (avgY - 384) * radiansPerPixel;  // relative angle to camera axis
 
                 if (cameraIsAboveScreen)
                     headY = .5f + (float)(movementScaling * Math.Sin(relativeVerticalAngle + cameraVerticaleAngle) * headDist);
