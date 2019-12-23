@@ -279,16 +279,16 @@ namespace WiiRemoteAppTest
                 float avgX = (firstPoint.X + secondPoint.X) / 2.0f;
                 float avgY = (firstPoint.Y + secondPoint.Y) / 2.0f;
 
-                System.Windows.Point p = new System.Windows.Point();
-                // should calculate based on distance
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    p = Mouse.GetPosition(Application.Current.MainWindow);
-                    Console.WriteLine(p.X);
-                });
+                //System.Windows.Point p = new System.Windows.Point();
+                //// should calculate based on distance
+                //Application.Current.Dispatcher.Invoke(() =>
+                //{
+                //    p = Mouse.GetPosition(Application.Current.MainWindow);
+                //    Console.WriteLine(p.X);
+                //});
 
-                avgX = (float)p.X;
-                avgY = (float)p.Y;
+                //avgX = (float)p.X;
+                //avgY = (float)p.Y;
                 headX = (float)(movementScaling * Math.Sin(radiansPerPixel * (avgX - 512)) * headDist);
 
                 relativeVerticalAngle = (avgY - 384) * radiansPerPixel;  // relative angle to camera axis
