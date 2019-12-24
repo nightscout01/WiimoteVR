@@ -44,7 +44,7 @@ namespace WiiRemoteAppTest
         private float headDist = 0;
         private bool cameraIsAboveScreen = false;  // has no affect until zeroing and then is set automatically.
         private float screenHeightinMM = 350;//20 * 25.4f;
-        private float cameraVerticaleAngle = 0;  // begins assuming the camera is point straight forward
+        private float cameraVerticalAngle = 0;  // begins assuming the camera is point straight forward
         private float relativeVerticalAngle = 0;  // current head position view angle
         private Point3D lastPosition = new Point3D();
 
@@ -91,11 +91,20 @@ namespace WiiRemoteAppTest
             this.KeyDown += new KeyEventHandler(MainWindow_KeyDown);
         }
 
+        public void CalibrateWiimote()
+        {
+            //zeros the head position and computes the camera tilt
+            double angle = Math.Acos(.5 / headDist) - Math.PI / 2;//angle of head to screen
+            if (!cameraIsAboveScreen)
+                angle = -angle;
+            cameraVerticalAngle = (float)angle; // (float)((angle - relativeVerticalAngle));//absolute camera angle 
+        }
+
         private void MainWindow_KeyDown(object sender, KeyEventArgs args)
         {
             if(args.Key == Key.Space)
             {
-                headDist = 2;
+                CalibrateWiimote();
             }
             if(args.Key == Key.A)
             {
@@ -343,9 +352,9 @@ namespace WiiRemoteAppTest
                 relativeVerticalAngle = (avgY - 384) * radiansPerPixel;  // relative angle to camera axis
 
                 if (cameraIsAboveScreen)
-                    headY = .5f + (float)(movementScaling * Math.Sin(relativeVerticalAngle + cameraVerticaleAngle) * headDist);
+                    headY = .5f + (float)(movementScaling * Math.Sin(relativeVerticalAngle + cameraVerticalAngle) * headDist);
                 else
-                    headY = -.5f + (float)(movementScaling * Math.Sin(relativeVerticalAngle + cameraVerticaleAngle) * headDist);
+                    headY = -.5f + (float)(movementScaling * Math.Sin(relativeVerticalAngle + cameraVerticalAngle) * headDist);
             }
         }
     }
