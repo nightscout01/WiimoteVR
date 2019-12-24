@@ -1,20 +1,14 @@
-﻿using HelixToolkit.Wpf;
+﻿// Copyright 2019 Maurice Montag
+// 3D Transform Code based off of code by Johnny Lee
+
+
+
+using HelixToolkit.Wpf;  // used for loading 3D models. Makes everything blue by default for some reason
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WiimoteLib;
 
 namespace WiiRemoteAppTest
@@ -28,7 +22,6 @@ namespace WiiRemoteAppTest
         private readonly ModelVisual3D modelVisual;
         private readonly PerspectiveCamera camera;
         AmbientLight light;
-        Point2D[] wiimotePointsNormalized = new Point2D[4];
 
         // can be used to find the absolute rotation of an object around the 3 cardinal axes
         //double rotationX = Vector3D.AngleBetween(new Vector3D(1, 0, 0), yourMatrix3D.Transform(new Vector3D(1, 0, 0)));
