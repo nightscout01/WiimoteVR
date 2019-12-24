@@ -124,8 +124,9 @@ namespace WiiRemoteAppTest
                 HeadPositionTextBox.Text = "HeadX = " + headX + " HeadY = " + headY + " HeadDist = " + headDist;
                 Point3D newHeadPos = new Point3D(headX, headY, -headDist);
                 Vector3D cameraLookDir = camera.LookDirection;
+                Point3D pointToLookAt = new Point3D(headX, headY, 0);
                 cameraLookDir.Normalize();
-                Point3D lookDirection = newHeadPos;//(Point3D) (cameraLookDir * -newHeadPos.Z);
+                Point3D lookDirection = pointToLookAt;//(Point3D) (cameraLookDir * -newHeadPos.Z);
                 camera.Position += (newHeadPos - lastPosition);
                 //Console.WriteLine((newHeadPos - lastPosition));
               //  camera.LookAt(lookDirection, 0);
