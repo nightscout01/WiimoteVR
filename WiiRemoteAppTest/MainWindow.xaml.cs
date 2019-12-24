@@ -97,6 +97,54 @@ namespace WiiRemoteAppTest
             {
                 headDist = 2;
             }
+            if(args.Key == Key.A)
+            {
+                Transform3DGroup transformGroup = new Transform3DGroup();
+                TranslateTransform3D XPlus = new TranslateTransform3D(new Vector3D(1, 0, 0));
+                transformGroup.Children.Add(XPlus);
+                transformGroup.Children.Add(modelVisual.Transform);
+                modelVisual.Transform = transformGroup;
+            }
+            if (args.Key == Key.D)
+            {
+                TranslateTransform3D XMinus = new TranslateTransform3D(new Vector3D(-1, 0, 0));
+                Transform3DGroup transformGroup = new Transform3DGroup();
+                transformGroup.Children.Add(XMinus);
+                transformGroup.Children.Add(modelVisual.Transform);
+                modelVisual.Transform = transformGroup;
+            }
+            if (args.Key == Key.W)
+            {
+                Transform3DGroup transformGroup = new Transform3DGroup();
+                TranslateTransform3D ZPlus = new TranslateTransform3D(new Vector3D(0, 0, 1));
+                transformGroup.Children.Add(ZPlus);
+                transformGroup.Children.Add(modelVisual.Transform);
+                modelVisual.Transform = transformGroup;
+            }
+            if (args.Key == Key.S)
+            {
+                TranslateTransform3D ZMinus = new TranslateTransform3D(new Vector3D(0, 0, -1));
+                Transform3DGroup transformGroup = new Transform3DGroup();
+                transformGroup.Children.Add(ZMinus);
+                transformGroup.Children.Add(modelVisual.Transform);
+                modelVisual.Transform = transformGroup;
+            }
+            if (args.Key == Key.Q)
+            {
+                Transform3DGroup transformGroup = new Transform3DGroup();
+                TranslateTransform3D YPlus = new TranslateTransform3D(new Vector3D(0, 1, 0));
+                transformGroup.Children.Add(YPlus);
+                transformGroup.Children.Add(modelVisual.Transform);
+                modelVisual.Transform = transformGroup;
+            }
+            if (args.Key == Key.Z)
+            {
+                TranslateTransform3D YMinus = new TranslateTransform3D(new Vector3D(0, -1, 0));
+                Transform3DGroup transformGroup = new Transform3DGroup();
+                transformGroup.Children.Add(YMinus);
+                transformGroup.Children.Add(modelVisual.Transform);
+                modelVisual.Transform = transformGroup;
+            }
         }
 
         private void RotationButton_Click(object sender, RoutedEventArgs e)
@@ -134,7 +182,7 @@ namespace WiiRemoteAppTest
                 lastPosition = newHeadPos;
                 camera.FieldOfView = 107 - 0.1944 * headDist * screenHeightinMM / 10;
             });
-            
+
             //Vector firstPoint = new Vector();
             //Vector secondPoint = new Vector();
             //int numVisible = 0;
@@ -169,15 +217,15 @@ namespace WiiRemoteAppTest
             //Application.Current.Dispatcher.Invoke(() =>
             //{
             //    Transform3DGroup transformGroup = new Transform3DGroup();
-            //    //  RotateTransform3D XRotateTransform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(1, 0, 0), 360 * headX));
-            //    // RotateTransform3D YRotateTransform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 1, 0), 360 * headY));
-            //    // Transform3D transform = new TranslateTransform3D(0, 0, 0);
-            //    //   transformGroup.Children.Add(XRotateTransform);
-            //    //  transformGroup.Children.Add(YRotateTransform);
-            //    // transformGroup.Children.Add(transform);
-            //    //ScaleTransform3D transform3D = new ScaleTransform3D(.5, .5, .5);
-            //    //modelVisual.Transform = transformGroup;
-            //    //camera.Position = new Point3D(headX, headY, headDist);
+            //    RotateTransform3D XRotateTransform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(1, 0, 0), 360 * headX));
+            //    RotateTransform3D YRotateTransform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 1, 0), 360 * headY));
+            //    Transform3D transform = new TranslateTransform3D(0, 0, 0);
+            //    transformGroup.Children.Add(XRotateTransform);
+            //    transformGroup.Children.Add(YRotateTransform);
+            //    transformGroup.Children.Add(transform);
+            //    ScaleTransform3D transform3D = new ScaleTransform3D(.5, .5, .5);
+            //    modelVisual.Transform = transformGroup;
+            //    camera.Position = new Point3D(headX, headY, headDist);
             //});
 
         }
