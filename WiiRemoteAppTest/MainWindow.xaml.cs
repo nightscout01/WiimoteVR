@@ -21,12 +21,7 @@ namespace WiiRemoteAppTest
         private readonly ModelImporter modelImporter;
         private readonly ModelVisual3D modelVisual;
         private readonly PerspectiveCamera camera;
-        AmbientLight light;
-
-        // can be used to find the absolute rotation of an object around the 3 cardinal axes
-        //double rotationX = Vector3D.AngleBetween(new Vector3D(1, 0, 0), yourMatrix3D.Transform(new Vector3D(1, 0, 0)));
-        //double rotationY = Vector3D.AngleBetween(new Vector3D(0, 1, 0), yourMatrix3D.Transform(new Vector3D(0, 1, 0)));
-        //double rotationZ = Vector3D.AngleBetween(new Vector3D(0, 0, 1), yourMatrix3D.Transform(new Vector3D(0, 0, 1)));
+        private readonly AmbientLight light;
 
         private const float radiansPerPixel = (float)(Math.PI / 4) / 1024.0f;  // 45 degree field of view with a 1024x768 camera
         private const float dotDistanceInMM = 8.5f * 25.4f;  // width of the wii sensor bar
@@ -35,15 +30,15 @@ namespace WiiRemoteAppTest
         private float headX = 0;
         private float headY = 0;
         private float headDist = 0;
-        private bool cameraIsAboveScreen = false;  // has no affect until zeroing and then is set automatically.
-        private float screenHeightinMM = 350;//20 * 25.4f;
+        private readonly bool cameraIsAboveScreen = false;  // has no affect until zeroing and then is set automatically.
+        private float screenHeightinMM = 350; //20 * 25.4f; <-from the original code, there's a lot of stuff in terms of 25.4 in this
         private float cameraVerticalAngle = 0;  // begins assuming the camera is point straight forward
         private float relativeVerticalAngle = 0;  // current head position view angle
         private Point3D lastPosition = new Point3D();
 
         public MainWindow()
         {
-            camera = new PerspectiveCamera(new Point3D(0,0,0),new Vector3D(0,0,1),new Vector3D(0,1,0),45);  // create a new camera with the given transformation matrices
+            camera = new PerspectiveCamera(new Point3D(0, 0, 0), new Vector3D(0, 0, 1), new Vector3D(0, 1, 0), 45);  // create a new camera with the given transformation matrices
             Wiimote wm = new Wiimote();
             wm.Connect();  // connect to first wii remote found
 
@@ -59,7 +54,6 @@ namespace WiiRemoteAppTest
 
 
             InitializeComponent();
-            // Viewport3D viewport3D1 = new Viewport3D();  // screw XAML 
             // looks like the 3D coord system makes actual sense instead of WPFs usual wierdness with 0,0 being at the top left
             viewport3D1.Camera = camera;
             // Asign the camera to the viewport
@@ -67,14 +61,10 @@ namespace WiiRemoteAppTest
 
             // in typical WPF fashion, this is an absolute mess
             light = new AmbientLight(Color.FromRgb(255, 255, 255));
-            // models.Children.Add(light);
-            //   mainGrid.Children.Add(viewport3D1);
             Model3DGroup group = modelImporter.Load("C:\\Users\\night\\source\\repos\\WiiRemoteAppTest\\WiiRemoteAppTest\\cube.obj");
             group.Children.Add(light);
-         //   group.Transform = new TranslateTransform3D(-0.5, 0, 0);
             modelVisual.Content = group;
             viewport3D1.Children.Add(modelVisual);
-            //viewport3D1.
         }
 
         public void Window_Loaded(object sender, RoutedEventArgs e)
@@ -86,20 +76,21 @@ namespace WiiRemoteAppTest
 
         public void CalibrateWiimote()
         {
-            //zeros the head position and computes the camera tilt
+            // Zeros the head position and computes the camera tilt
             double angle = Math.Acos(.5 / headDist) - Math.PI / 2;//angle of head to screen
             if (!cameraIsAboveScreen)
                 angle = -angle;
             cameraVerticalAngle = (float)angle; // (float)((angle - relativeVerticalAngle));//absolute camera angle 
+            // I need to figure out which one is better
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs args)
         {
-            if(args.Key == Key.Space)
+            if (args.Key == Key.Space)
             {
                 CalibrateWiimote();
             }
-            if(args.Key == Key.A)
+            if (args.Key == Key.A)
             {
                 Transform3DGroup transformGroup = new Transform3DGroup();
                 TranslateTransform3D XPlus = new TranslateTransform3D(new Vector3D(1, 0, 0));
@@ -149,87 +140,28 @@ namespace WiiRemoteAppTest
             }
         }
 
-        private void RotationButton_Click(object sender, RoutedEventArgs e)
-        {
-            //camera.Position = new Point3D(0, 0, 2);
-
-        }
-
         private void Wiimote_Update(object sender, WiimoteChangedEventArgs args)
         {
-            //if (args.WiimoteState.ButtonState.A)
-            //{
-            //    Random rand = new Random();
-            //    Application.Current.Dispatcher.Invoke(() => { 
-            //        light = new AmbientLight(Color.FromRgb((byte)rand.Next(256), (byte)rand.Next(256), (byte)rand.Next(256))); 
-            //    });
-            //}
             ParseWiimoteData(args.WiimoteState);
-           
-            if(Application.Current == null)
+
+            if (Application.Current == null)  // needed to fix weird exceptions in visual studio when exiting a program
             {
                 return;
             }
-            Application.Current.Dispatcher.Invoke(() => {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
                 HeadPositionTextBox.Text = "HeadX = " + headX + " HeadY = " + headY + " HeadDist = " + headDist;
                 Point3D newHeadPos = new Point3D(headX, headY, -headDist);
                 Vector3D cameraLookDir = camera.LookDirection;
                 Point3D pointToLookAt = new Point3D(headX, headY, 0);
                 cameraLookDir.Normalize();
                 Point3D lookDirection = pointToLookAt;//(Point3D) (cameraLookDir * -newHeadPos.Z);
+                // the way I have here ^ seems to work better than the way in the original 2007 code, but I need to make sure.
                 camera.Position += (newHeadPos - lastPosition);
-                //Console.WriteLine((newHeadPos - lastPosition));
-              //  camera.LookAt(lookDirection, 0);
                 CameraPosTexrbox.Text = camera.Position.ToString();
                 lastPosition = newHeadPos;
                 camera.FieldOfView = 107 - 0.1944 * headDist * screenHeightinMM / 10;
             });
-
-            //Vector firstPoint = new Vector();
-            //Vector secondPoint = new Vector();
-            //int numVisible = 0;
-            /*
-             * 
-             * 
-                             * Vector2 firstPoint = Vector2();
-                    Vector2 secondPoint = Vector2();
-                    int numvisible = 0;
-
-                    for (int index = 0; index < 4; index++) {
-                        if (mWiiMote.IR.Dot[index].bFound) {
-                            if (numvisible == 0) {
-                                firstPoint.x = mWiiMote.IR.Dot[index].RawX;
-                                firstPoint.y = mWiiMote.IR.Dot[index].RawY;
-                                numvisible = 1;
-                            }
-                            else if (numvisible == 1) {
-                                secondPoint.x = mWiiMote.IR.Dot[index].RawX;
-                                secondPoint.y = mWiiMote.IR.Dot[index].RawY;
-                                numvisible = 2;
-                                break;
-                            }
-                        }
-                    }
-                */
-            //  SetCameraMatrices(camera);
-            //if (Application.Current == null)  // just to eliminate exceptions when closing the program
-            //{
-            //    return;
-            //}
-            //Application.Current.Dispatcher.Invoke(() =>
-            //{
-            //    Transform3DGroup transformGroup = new Transform3DGroup();
-            //    RotateTransform3D XRotateTransform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(1, 0, 0), 360 * headX));
-            //    RotateTransform3D YRotateTransform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 1, 0), 360 * headY));
-            //    Transform3D transform = new TranslateTransform3D(0, 0, 0);
-            //    transformGroup.Children.Add(XRotateTransform);
-            //    transformGroup.Children.Add(YRotateTransform);
-            //    transformGroup.Children.Add(transform);
-            //    ScaleTransform3D transform3D = new ScaleTransform3D(.5, .5, .5);
-            //    modelVisual.Transform = transformGroup;
-            //    camera.Position = new Point3D(headX, headY, headDist);
-            //});
-
         }
 
         public void ParseWiimoteData(WiimoteState wiimoteState)
@@ -246,20 +178,19 @@ namespace WiiRemoteAppTest
             {
                 wiimotePointsNormalized[0].X = 1.0f - wiimoteState.IRState.IRSensors[0].RawPosition.X / 768.0f;  // wii IR camera resolution is 1024x768
                 wiimotePointsNormalized[0].Y = wiimoteState.IRState.IRSensors[0].RawPosition.Y / 768.0f;
-                // wiiCursor1.isDown = true;
                 firstPoint.X = wiimoteState.IRState.IRSensors[0].RawPosition.X;
                 firstPoint.Y = wiimoteState.IRState.IRSensors[0].RawPosition.Y;
                 numvisible = 1;
             }
             else
-            {   //not visible
-                // wiiCursor1.isDown = false;
+            {
+                // not visible
+                // blank else statement just in case
             }
             if (wiimoteState.IRState.IRSensors[1].Found)
             {
                 wiimotePointsNormalized[1].X = 1.0f - wiimoteState.IRState.IRSensors[1].RawPosition.X / 768.0f;
                 wiimotePointsNormalized[1].Y = wiimoteState.IRState.IRSensors[1].RawPosition.Y / 768.0f;
-                //    wiiCursor2.isDown = true;
                 if (numvisible == 0)
                 {
                     firstPoint.X = wiimoteState.IRState.IRSensors[1].RawPosition.X;
@@ -274,14 +205,14 @@ namespace WiiRemoteAppTest
                 }
             }
             else
-            {//not visible
-             //  wiiCursor2.isDown = false;
+            {
+                // not visible
+                // blank else statement just in case
             }
             if (wiimoteState.IRState.IRSensors[2].Found)
             {
                 wiimotePointsNormalized[2].X = 1.0f - wiimoteState.IRState.IRSensors[2].RawPosition.X / 768.0f;
                 wiimotePointsNormalized[2].Y = wiimoteState.IRState.IRSensors[2].RawPosition.Y / 768.0f;
-                //   wiiCursor3.isDown = true;
                 if (numvisible == 0)
                 {
                     firstPoint.X = wiimoteState.IRState.IRSensors[2].RawPosition.X;
@@ -296,14 +227,14 @@ namespace WiiRemoteAppTest
                 }
             }
             else
-            {//not visible
-             // wiiCursor3.isDown = false;
+            {
+                // not visible
+                // blank else statement just in case
             }
             if (wiimoteState.IRState.IRSensors[3].Found)
             {
                 wiimotePointsNormalized[3].X = 1.0f - wiimoteState.IRState.IRSensors[3].RawPosition.X / 768.0f;
                 wiimotePointsNormalized[3].Y = wiimoteState.IRState.IRSensors[3].RawPosition.Y / 768.0f;
-                //  wiiCursor4.isDown = true;
                 if (numvisible == 1)
                 {
                     secondPoint.X = wiimoteState.IRState.IRSensors[3].RawPosition.X;
@@ -312,8 +243,9 @@ namespace WiiRemoteAppTest
                 }
             }
             else
-            {//not visible
-             // wiiCursor4.isDown = false;
+            {
+                // not visible
+                // blank else statement just in case
             }
 
             if (numvisible == 2)
@@ -323,12 +255,14 @@ namespace WiiRemoteAppTest
                 float pointDist = (float)Math.Sqrt(dx * dx + dy * dy);
 
                 float angle = radiansPerPixel * pointDist / 2;
-                //in units of screen hieght since the box is a unit cube and box height is 1
+                // in units of screen height since the box is a unit cube and box height is 1
                 headDist = movementScaling * (float)((dotDistanceInMM / 2) / Math.Tan(angle)) / screenHeightinMM;
 
 
                 float avgX = (firstPoint.X + secondPoint.X) / 2.0f;
                 float avgY = (firstPoint.Y + secondPoint.Y) / 2.0f;
+
+                // for when we want to use mouse x and y coords instead of wii remote coords for testing
 
                 //System.Windows.Point p = new System.Windows.Point();
                 //// should calculate based on distance
@@ -349,16 +283,6 @@ namespace WiiRemoteAppTest
                 else
                     headY = -.5f + (float)(movementScaling * Math.Sin(relativeVerticalAngle + cameraVerticalAngle) * headDist);
             }
-        }
-    }
-    class Point2D
-    {
-        public float x = 0.0f;
-        public float y = 0.0f;
-        public void set(float x, float y)
-        {
-            this.x = x;
-            this.y = y;
         }
     }
 }

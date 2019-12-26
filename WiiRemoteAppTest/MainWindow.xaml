@@ -8,14 +8,6 @@
         <Viewport3D Name="viewport3D1" ClipToBounds="True" Canvas.Left="0" Canvas.Top="10" Margin="10,10,10.2,143.8"/>
         <TextBox x:Name="HeadPositionTextBox" HorizontalAlignment="Left" Height="30" Margin="145,635,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="280"/>
         <TextBox x:Name="CameraPosTexrbox" HorizontalAlignment="Left" Height="23" Margin="705,635,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="205"/>
-        <!--<Button x:Name="rotationButton" Content="Rotate" HorizontalAlignment="Left" Margin="465,400,0,0" VerticalAlignment="Top" Width="75" Click="RotationButton_Click" Visibility="Hidden"/>-->
-
-        <!--<Slider Height = "23" HorizontalAlignment = "Left"  
-         Margin = "145,271,0,0" Name = "slider1" 
-         VerticalAlignment = "Top" Width = "269"  
-         Maximum = "360" 
-         Value = "{Binding ElementName = rotate, Path=Angle}" />-->
-
     </Grid>
 
 </Window>
