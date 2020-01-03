@@ -1,4 +1,5 @@
-﻿<Window x:Class = "WiiRemoteAppTest.MainWindow" 
+﻿<!--Copyright 2019 Maurice Montag-->
+<Window x:Class = "WiiRemoteAppTest.MainWindow" 
    xmlns = "http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
    xmlns:x = "http://schemas.microsoft.com/winfx/2006/xaml" 
    xmlns:HelixToolkit="clr-namespace:HelixToolkit.Wpf;assembly=HelixToolkit.Wpf"

@@ -24,14 +24,14 @@ namespace WiiRemoteAppTest
         private readonly AmbientLight light;
 
         private const float radiansPerPixel = (float)(Math.PI / 4) / 1024.0f;  // 45 degree field of view with a 1024x768 camera
-        private const float dotDistanceInMM = 8.5f * 25.4f;  // width of the wii sensor bar
+        private const float dotDistanceInMM = 8.5f * 25.4f;  // width of the wii sensor bar (8.5 inches)
         private const float movementScaling = 1f;
 
         private float headX = 0;
         private float headY = 0;
         private float headDist = 0;
         private readonly bool cameraIsAboveScreen = false;  // has no affect until zeroing and then is set automatically.
-        private float screenHeightinMM = 350; //20 * 25.4f; <-from the original code, there's a lot of stuff in terms of 25.4 in this
+        private float screenHeightinMM = 692.15f; //20 * 25.4f; <-from the original code, 25.4 mm is 1 inch
         private float cameraVerticalAngle = 0;  // begins assuming the camera is point straight forward
         private float relativeVerticalAngle = 0;  // current head position view angle
         private Point3D lastPosition = new Point3D();
@@ -54,14 +54,14 @@ namespace WiiRemoteAppTest
 
 
             InitializeComponent();
-            // looks like the 3D coord system makes actual sense instead of WPFs usual wierdness with 0,0 being at the top left
+            // looks like the 3D coord system makes actual sense instead of WPFs usual weirdness with 0,0 being at the top left
             viewport3D1.Camera = camera;
             // Asign the camera to the viewport
 
 
             // in typical WPF fashion, this is an absolute mess
             light = new AmbientLight(Color.FromRgb(255, 255, 255));
-            Model3DGroup group = modelImporter.Load("C:\\Users\\night\\source\\repos\\WiiRemoteAppTest\\WiiRemoteAppTest\\cube.obj");
+            Model3DGroup group = modelImporter.Load("cube.obj");
             group.Children.Add(light);
             modelVisual.Content = group;
             viewport3D1.Children.Add(modelVisual);
